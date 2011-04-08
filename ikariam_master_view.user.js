@@ -491,7 +491,7 @@ IKARIAM.rememberMill = function(current){
 function getCensus(viewportCity){
   var population = {};
   var ulstats = $$('CityOverview').childNodes[3].childNodes[3];
-  population.happy          = parseInt($$('SatisfactionOverview').childNodes[5].childNodes[3].textContent,10);
+  population.happy          = +$('#happinessLarge div.value').text();
   population.population   	= number(ulstats.childNodes[1].childNodes[1].textContent);
   population.satisfaction   = population.population + population.happy;
   population.maxSpace	      = number(ulstats.childNodes[1].childNodes[3].textContent);
