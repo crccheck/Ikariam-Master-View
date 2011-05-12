@@ -6,7 +6,7 @@ var scriptMetadata = parseMetadata(<><![CDATA[
 // @description    An Ikariam game script to gather information from player towns
 // @include        http://s*.ikariam.*/index.php*
 // @homepage       http://userscripts.org/scripts/show/53274
-// @require        http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js
+// @require        http://code.jquery.com/jquery-1.5.2.min.js
 // @notrequire        http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.min.js
 // ==/UserScript==
 ]]></>.toString());
@@ -46,11 +46,11 @@ var openIcon = 'data:image/png;base64,'+
     'EgHPVEX2FWAA6KMJ0Xri1nUAAAAASUVORK5CYII=';
 var scriptName = scriptMetadata.name + " " + scriptMetadata.version;
 var ICON = {
-	wood    : "/skin/resources/icon_wood.gif",
-	wine    : "/skin/resources/icon_wine.gif",
-	marble  : "/skin/resources/icon_marble.gif",
-	crystal : "/skin/resources/icon_glass.gif",
-	sulfur  : "/skin/resources/icon_sulfur.gif",
+  wood    : "/skin/resources/icon_wood.gif",
+  wine    : "/skin/resources/icon_wine.gif",
+  marble  : "/skin/resources/icon_marble.gif",
+  crystal : "/skin/resources/icon_glass.gif",
+  sulfur  : "/skin/resources/icon_sulfur.gif",
 };
 var IMG = {
   wonder : "/skin/icons/livingspace_24x24.gif",
@@ -114,7 +114,7 @@ GM_addStyle(
 //---------------  BEGIN SHARED FUNCTIONS
 function debug() { var msg = []; for (var i = 0, n = arguments.length; i<n; ++i) msg.push(arguments[i]); setTimeout(function() { throw new Error("[debug] " + msg.join(' ')); }, 0);}
 function ddebug() { }
-log=function(){var a="history";log[a]=log[a]||[];log[a].push(arguments);window.console&&console.log[console.firebug?"apply":"call"](console,Array.prototype.slice.call(arguments))};window.logargs=function(a){log(a,arguments.callee.caller.arguments)};
+if (unsafeWindow.console){ var log = unsafeWindow.console.log; }
 
 limit = function(n,lower,upper) { return Math.max(Math.min(n,upper),lower); }
 $$ = document.getElementById;
@@ -134,9 +134,9 @@ function trim(str) { var str = str.replace(/^\s\s*/, ''), ws = /\s/, i = str.len
 function duration(seconds){
   var sign = (seconds < 0) ? '-' : '';
   seconds = Math.abs(seconds);
-	var minutes = (Math.ceil(seconds/60) % 60);
+  var minutes = (Math.ceil(seconds/60) % 60);
   minutes = (minutes < 10) ? '0' + minutes : minutes.toString();
-	return sign + Math.floor((seconds+60)/3600).toString() + ':' + minutes;
+  return sign + Math.floor((seconds+60)/3600).toString() + ':' + minutes;
 }
 
 // FUNCTIONS THAT USE IKARIAM VARIABLES FOR LOCALIZATIOBN
@@ -158,9 +158,9 @@ function durationHMS(seconds,depth){
   var temp = unsafeWindow.LocalizationStrings['timeunits']['short'], ret = [], prefix = '';
   if (seconds == 0) { return '0'; }
   else if (seconds < 0) { seconds = -seconds; prefix = '-'; }
-	var x = [ Math.floor(seconds / 86400) , Math.floor(seconds/3600) % 24 ,	Math.floor(seconds/60) % 60 , Math.ceil(seconds % 60) ];
-	var y = [ temp.day                    , temp.hour                     , temp.minute,                  temp.second  ];
-	for (var i = 0; i < x.length; ++i){ if (x[i] != 0) { ret.push(x[i].toString() + y[i]); } }
+  var x = [ Math.floor(seconds / 86400) , Math.floor(seconds/3600) % 24 , Math.floor(seconds/60) % 60 , Math.ceil(seconds % 60) ];
+  var y = [ temp.day                    , temp.hour                     , temp.minute,                  temp.second  ];
+  for (var i = 0; i < x.length; ++i){ if (x[i] != 0) { ret.push(x[i].toString() + y[i]); } }
   if (depth && depth<ret.length) return prefix + ret.slice(0,depth).join(' ');
   else return prefix + ret.join(' ');
 }
@@ -174,17 +174,17 @@ function hmsToSeconds(string){
 
 // IKARIAM HELPER FUNCTIONS
 function itime2Date(ikariamTime){
-	var dateTimeString,thisDate,month,day,year,thisTime,hour,minute,second;
-	dateTimeString = (ikariamTime || document.getElementById('servertime').innerHTML).split(" ");
-	thisDate = dateTimeString[0].split(".");
-	year     = parseInt(thisDate[2],10);
-	month    = parseInt(thisDate[1],10) - 1;
-	day      = parseInt(thisDate[0],10);
-	thisTime = dateTimeString[1].split(":");
-	hour     = parseInt(thisTime[0],10);
-	minute   = parseInt(thisTime[1],10);
-	second   = parseInt(thisTime[2] || 0,10);
-	return new Date(year,month,day,hour,minute,second).getTime();
+  var dateTimeString,thisDate,month,day,year,thisTime,hour,minute,second;
+  dateTimeString = (ikariamTime || document.getElementById('servertime').innerHTML).split(" ");
+  thisDate = dateTimeString[0].split(".");
+  year     = parseInt(thisDate[2],10);
+  month    = parseInt(thisDate[1],10) - 1;
+  day      = parseInt(thisDate[0],10);
+  thisTime = dateTimeString[1].split(":");
+  hour     = parseInt(thisTime[0],10);
+  minute   = parseInt(thisTime[1],10);
+  second   = parseInt(thisTime[2] || 0,10);
+  return new Date(year,month,day,hour,minute,second).getTime();
 }
 function addDynamicBox(title,content,position,id){
   if (document.body.id == 'renameCity') return;
@@ -216,13 +216,12 @@ function deserialize(name, def) {
 
 // PART 1: PASSIVE DATA COLLECTION *************************************************************
 var IKARIAM = {
-  current : $X('//*[@id="citySelect"]/option[@selected="selected"]').value ,
-  citySelect : getCityOrder(),
-  getResource:function(id,resource){
+  current: $('#citySelect').val(),
+  citySelect: getCityOrder(),
+  getResource: function(id, resource){
     var temp_resources;
     if (allCities[id]) {
-      temp_resources = allCities[id].resources;
-      if (!temp_resources.__count__) temp_resources = {resources:{wood:0,wine:0,marble:0,crystal:0,sulfur:0},maxCapacity:{wood:0,wine:0,marble:0,crystal:0,sulfur:0},production:{wood:0,trade:0,tradeName:''},wineConsumption:0,ts:0};
+      temp_resources = allCities[id].resources || {resources:{wood:0,wine:0,marble:0,crystal:0,sulfur:0},maxCapacity:{wood:0,wine:0,marble:0,crystal:0,sulfur:0},production:{wood:0,trade:0,tradeName:''},wineConsumption:0,ts:0};
       var production = 0;
       switch (resource){
         case 'wood' :
@@ -244,6 +243,7 @@ var IKARIAM = {
     }
     return '&ndash;';
   },
+
   getBuildingLevel : function(id,name,position){
     var temp, level = 0;
     //if (name == "palaceColony") name = "palace";
@@ -296,16 +296,16 @@ function changeCity(city_id,method) {
 }
 function getCities(){
   var islandId, id, ids = {}, output = eval(GM_getValue("cities_"+gameServer, '({})'));
-	$("#citySelect > option:not(.deployedCities):not(.occupiedCities)").each(function() {
+  $("#citySelect > option:not(.deployedCities):not(.occupiedCities)").each(function() {
     id = parseInt(this.value,10);
     ids[id] = true; // build hash for cleaning up old data later
     if (!output[id]) output[id] = { id:id, resources:{}, buildings:{} };
     output[id].name = trim(this.innerHTML.replace(/\[[0-9:]+\](&nbsp;)?/,''));
-		if (this.selected) current = output[id];
-	});
+    if (this.selected) current = output[id];
+  });
   if (current && (islandId = $X('//li[@class="viewIsland"]/a'))) current.islandId = parseInt(islandId.href.replace(/.+=/,''),10);
   for (id in output){ if (!ids[id]) { if (confirm('Ok To Delete '+output[id].name)) delete output[id]; save(); } }  // delete bad cities
-	return output;
+  return output;
 }
 function buildLocalize(){
   // inherited by scope: OBJECT localize
@@ -334,7 +334,7 @@ function getBuildings(viewportCity,responseText) {
     return building;
   }
 
-	var buildID, buildings = {}, oldBuildings = copy(viewportCity.buildings);
+  var buildID, buildings = {}, oldBuildings = copy(viewportCity.buildings);
   var tempDiv = responseText ? node('div','','',responseText) : document;
   var li = $x('//ul[@id="locations"]/li[contains(@id,"position")]',tempDiv);
 
@@ -359,7 +359,7 @@ function getBuildings(viewportCity,responseText) {
       }
     }
     //debug(buildings[buildID].length == undefined);
-	}
+  }
   viewportCity.buildings = buildings;
 }
 function getForce(viewportCity){
@@ -492,30 +492,33 @@ function getCensus(viewportCity){
   var population = {};
   var ulstats = $$('CityOverview').childNodes[3].childNodes[3];
   population.happy          = +$('#happinessLarge div.value').text();
-  population.population   	= number(ulstats.childNodes[1].childNodes[1].textContent);
+  population.population     = number(ulstats.childNodes[1].childNodes[1].textContent);
   population.satisfaction   = population.population + population.happy;
-  population.maxSpace	      = number(ulstats.childNodes[1].childNodes[3].textContent);
+  population.maxSpace       = number(ulstats.childNodes[1].childNodes[3].textContent);
   viewportCity.demographics = population;
 }
+
 function getResourcesProduction() {
- 	var tradeGood  = {wood : 0, trade : 0, tradeName : ''};
+  var tradeGood  = {wood : 0, trade : 0, tradeName : ''};
   tradeGood.wood = unsafeWindow.woodCounter ? unsafeWindow.woodCounter.production : 0;
   if (unsafeWindow.tradegoodCounter) {
-  	tradeGood.trade = unsafeWindow.tradegoodCounter ? unsafeWindow.tradegoodCounter.production : 0;
-  	var script = unsafeWindow.tradegoodCounter.valueElem.id;
-  	if (script.search(/value_wine/) != -1)         { tradeGood.tradeName = 'wine'; }
-  	else if (script.search(/value_marble/) != -1)  { tradeGood.tradeName = 'marble'; }
-  	else if (script.search(/value_crystal/) != -1) { tradeGood.tradeName = 'crystal'; }
-  	else if (script.search(/value_sulfur/) != -1)  { tradeGood.tradeName = 'sulfur'; }
+    tradeGood.trade = unsafeWindow.tradegoodCounter ? unsafeWindow.tradegoodCounter.production : 0;
+    var script = unsafeWindow.tradegoodCounter.valueElem.id;
+    if (script.search(/value_wine/) != -1)         { tradeGood.tradeName = 'wine'; }
+    else if (script.search(/value_marble/) != -1)  { tradeGood.tradeName = 'marble'; }
+    else if (script.search(/value_crystal/) != -1) { tradeGood.tradeName = 'crystal'; }
+    else if (script.search(/value_sulfur/) != -1)  { tradeGood.tradeName = 'sulfur'; }
   }
-	return tradeGood;
+  return tradeGood;
 }
+
 function getResources() {
   var temp_resources = {}, currentCityResources = unsafeWindow.IKARIAM.currentCity, resourcesProduction, wineObj;
   if ((resourcesProduction = getResourcesProduction()) && (currentCityResources)) {
     temp_resources = copyDeep(currentCityResources);  // { resources : {  }, maxCapacity : {  } }
-    if (!resourcesProduction.tradeName && current.resources.production && current.resources.production.tradeName) 
-    resourcesProduction.tradeName = current.resources.production.tradeName;
+    if (!resourcesProduction.tradeName && current.resources.production && current.resources.production.tradeName) {
+      resourcesProduction.tradeName = current.resources.production.tradeName;
+    }
     temp_resources.production = resourcesProduction;
     wineObj = (resourcesProduction.tradeName == 'wine') ? unsafeWindow.tradegoodCounter : unsafeWindow.wineCounter;
     if (wineObj) {
@@ -525,7 +528,9 @@ function getResources() {
     }
     temp_resources.ts = now;
     current.resources = temp_resources;
-    if (current.demographics && current.demographics.population) current.demographics.population = parseInt($$('value_inhabitants').innerHTML.split('(')[1].replace(/\D/g,''),10);
+    if (current.demographics && current.demographics.population) {
+      current.demographics.population = parseInt($$('value_inhabitants').innerHTML.split('(')[1].replace(/\D/g,''),10);
+    }
     save();
   }
 }
@@ -611,7 +616,7 @@ if ($$('servertime')) {
 
 function getCityOrder(){
   var output = [];
-	$("#citySelect > option:not(.deployedCities):not(.occupiedCities)").each(function() {
+  $("#citySelect > option:not(.deployedCities):not(.occupiedCities)").each(function() {
     output.push(parseInt(this.value,10)); });
   return output;
 }
@@ -635,28 +640,28 @@ function buildAverages(){
   var temp_resources, resource, id, n_cities = 0;
   for (id in allCities) {
     ++n_cities;
-  	if (temp_resources = allCities[id].resources.resources){
+    if (temp_resources = allCities[id].resources.resources){
       averages.wood    += number(temp_resources.wood);
-			averages.wine    += number(temp_resources.wine);
-			averages.marble  += number(temp_resources.marble);
-			averages.crystal += number(temp_resources.crystal);
-			averages.sulfur  += number(temp_resources.sulfur);
-		} else {
-			enableTransport = false;
-		}
-	}
- 	for (resource in averages){ averages[resource] = Math.floor(averages[resource]/n_cities); }
+      averages.wine    += number(temp_resources.wine);
+      averages.marble  += number(temp_resources.marble);
+      averages.crystal += number(temp_resources.crystal);
+      averages.sulfur  += number(temp_resources.sulfur);
+    } else {
+      enableTransport = false;
+    }
+  }
+  for (resource in averages){ averages[resource] = Math.floor(averages[resource]/n_cities); }
   return averages;
 }
 // qty, destCity, sourceCity
 function amountToSend(qty,averages,destCity,sourceCity){
-	sourceCity = sourceCity || ({});
-	var amt, output = {};
-	for (var resource in averages){
-		amt = Math.min(Math.min(qty[resource],destCity.maxCapacity[resource])-destCity.resources[resource],sourceCity.resources[resource] || 1e10 );
-		output[resource] = Math.max(0,amt); // no undefined resources plz cuz i'm lazy
-	}
-	return output;
+  sourceCity = sourceCity || ({});
+  var amt, output = {};
+  for (var resource in averages){
+    amt = Math.min(Math.min(qty[resource],destCity.maxCapacity[resource])-destCity.resources[resource],sourceCity.resources[resource] || 1e10 );
+    output[resource] = Math.max(0,amt); // no undefined resources plz cuz i'm lazy
+  }
+  return output;
 }
 
 function addLoadTimesToPage(){
@@ -684,19 +689,19 @@ function adjustLoadingTime(){
 }
 
 function transportMax(e){
-	e = e || window.event;
-	var stuff = this.value.split('&');
-	var lookup      = { 'wood' : 'textfield_wood', 'wine' : 'textfield_wine', 'marble' : 'textfield_marble', 'crystal' : 'textfield_glass', 'sulfur' : 'textfield_sulfur' };
+  e = e || window.event;
+  var stuff = this.value.split('&');
+  var lookup      = { 'wood' : 'textfield_wood', 'wine' : 'textfield_wine', 'marble' : 'textfield_marble', 'crystal' : 'textfield_glass', 'sulfur' : 'textfield_sulfur' };
   var lookupEvent = { 'wood' : 'swood', 'wine' : 'swine', 'marble' : 'smarble', 'crystal' : 'sglass', 'sulfur' : 'ssulfur' };
-	var t,resource,amt,input;
+  var t,resource,amt,input;
     // simulate a mouse click
   var evt = document.createEvent("MouseEvents");
   evt.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
-	for (var i = 0; i < stuff.length; ++i){
-		t = stuff[i].split('=');
-		resource = t[0];
-		amt = t[1];
-		//debug([resource,$$('send_'+resource).checked,amt]);
+  for (var i = 0; i < stuff.length; ++i){
+    t = stuff[i].split('=');
+    resource = t[0];
+    amt = t[1];
+    //debug([resource,$$('send_'+resource).checked,amt]);
     input = $X("//form[@id='transport']//input[@id='"+lookup[resource]+"']");
     if (input) {
       var slider = unsafeWindow[lookupEvent[resource]];
@@ -704,36 +709,38 @@ function transportMax(e){
       input.dispatchEvent(evt);
       adjustLoadingTime();
     }
-	}
+  }
   e.stopPropagation();
   e.preventDefault();
 }
 
 // SHORTCUT FUNCTIONS
-function image(resource){	if (resource && ICON[resource]) { return '<img width="17" height="13" src="'+ICON[resource]+'" alt=""/>'; }	else { return ''; } }
+function image(resource){ if (resource && ICON[resource]) { return '<img width="17" height="13" src="'+ICON[resource]+'" alt=""/>'; } else { return ''; } }
 function buildCityHref(id){ return "?view=city&id=" + id; }
 function buildResourceHref(id){ return "?view=resource&type=resource&id="+allCities[id].islandId; }
 function buildTradegoodHref(id){ return "?view=tradegood&type=tradegood&id="+allCities[id].islandId; }
 function buildArmyHref(id){ return "?view=cityMilitary-army&id=" + id; }
 function buildNavyHref(id){ return "?view=cityMilitary-fleet&id=" + id; }
+
 // OTHER FUNCTIONS
 function save(){
   if (gameServer) {
-    //debug('saving . . . ' + uneval(allCities).length + ' bytes '+gameServer);
-    if (saveCacheTimer) { 
-    //debug("aborted save. timer: "+saveCacheTimer);
-    clearTimeout(saveCacheTimer); }
-    saveCacheTimer = setTimeout(function() { GM_setValue('cities_'+gameServer,uneval(allCities)); },1);
+    //log('saving . . . ' + uneval(allCities).length + ' bytes '+gameServer, allCities);
+    if (saveCacheTimer) {
+      //log("aborted save. timer: "+saveCacheTimer);
+      clearTimeout(saveCacheTimer);
+    }
+    saveCacheTimer = setTimeout(function() { GM_setValue('cities_'+gameServer,uneval(allCities)); }, 1);
   }
 }
 function updatePopup(){
-	var elem, end, now = itime2Date();
-	for each (elem in $x("//span[@class='toDuration']")) if (end = elem.getAttribute('rel')) elem.innerHTML = '(' + duration((end-now)/1000) + ')';
+  var elem, end, now = itime2Date();
+  for each (elem in $x("//span[@class='toDuration']")) if (end = elem.getAttribute('rel')) elem.innerHTML = '(' + duration((end-now)/1000) + ')';
   // FILL IN DYNAMIC ELEMENTS
   goals.init();
 }
 function updateDurationsHMS(){
-	var end, now = itime2Date();
+  var end, now = itime2Date();
   $(".toDurationHMS").each(function(){ if (end = this.getAttribute('rel').split(',')) $(this).text(durationHMS((end[0]-now)/1000,end[1])); });
 }
 function showHideTbody(elem,section){
@@ -760,52 +767,52 @@ function hilightCell(dummy,elem){
   }
 }
 function showHide(e) {
-	var overviewPopup = $$("overviewPopup");
-	if (overviewPopup.style.display != "block") {
-		updatePopup();
-		overviewPopup.style.display = "block";
-	} else { overviewPopup.style.display = "none"; }
+  var overviewPopup = $$("overviewPopup");
+  if (overviewPopup.style.display != "block") {
+    updatePopup();
+    overviewPopup.style.display = "block";
+  } else { overviewPopup.style.display = "none"; }
 }
 function _keydown(e){
-	var overviewPopup = $$("overviewPopup");
+  var overviewPopup = $$("overviewPopup");
   var popupKeyMode = !parseInt(GM_getValue('popupKeyMode'));
   //debug(e.which);
   if (overviewPopup && popupKeyMode) {
-		e = e || window.event;
-		if (e.which == parseInt(GM_getValue('popupKey',"32"),10)) {
+    e = e || window.event;
+    if (e.which == parseInt(GM_getValue('popupKey',"32"),10)) {
       if (overviewPopup.style.display != "block") { // prevent repeat firings, could do this by setting a global check variable but enh...
         updatePopup();
         overviewPopup.style.display = "block";
       }
-			e.stopPropagation();
-			e.preventDefault();
-			return false;
-		}
-	}
+      e.stopPropagation();
+      e.preventDefault();
+      return false;
+    }
+  }
 }
 function _keyup(e){
-	var overviewPopup = $$("overviewPopup");
+  var overviewPopup = $$("overviewPopup");
   var popupKeyMode = !parseInt(GM_getValue('popupKeyMode'));
   if (overviewPopup) {
-		e = e || window.event;
-		if (e.which == parseInt(GM_getValue('popupKey',"32"),10)) {
+    e = e || window.event;
+    if (e.which == parseInt(GM_getValue('popupKey',"32"),10)) {
       if ((overviewPopup.style.display != "block") && !popupKeyMode) {
         updatePopup();
         overviewPopup.style.display = "block";
       } else { overviewPopup.style.display = "none"; }
-			e.stopPropagation();
-			e.preventDefault();
-			return false;
-		}
-	}
+      e.stopPropagation();
+      e.preventDefault();
+      return false;
+    }
+  }
 }
 function doPopups(){
-	//debug("textarea search : " + document.getElementsByTagName("textarea").length);
+  //debug("textarea search : " + document.getElementsByTagName("textarea").length);
   var popupKeyMode = !!(GM_getValue('popupKeyMode'),10);
-	//if (!document.getElementsByTagName("textarea").length) {
-		document.addEventListener("keydown",_keydown,false);
-		document.addEventListener("keyup",_keyup,false);
-	//}
+  //if (!document.getElementsByTagName("textarea").length) {
+    document.addEventListener("keydown",_keydown,false);
+    document.addEventListener("keyup",_keyup,false);
+  //}
 }
 function generateTip(type,id,param){
   switch (type) {
@@ -1102,16 +1109,15 @@ function buildPopUp(){
     table_resources += '</tr></thead>';
 
     // ROW 1
-    cityOrder.forEach(function(id,i) {
-      var temp_resources = allCities[id].resources;
-      if (!temp_resources.__count__) temp_resources = {resources:{wood:0,wine:0,marble:0,crystal:0,sulfur:0},maxCapacity:{wood:0,wine:0,marble:0,crystal:0,sulfur:0},production:{wood:0,trade:0,tradeName:''},wineConsumption:0,ts:0};
+    cityOrder.forEach(function(id, i) {
+      var temp_resources = allCities[id].resources || {resources:{wood:0,wine:0,marble:0,crystal:0,sulfur:0},maxCapacity:{wood:0,wine:0,marble:0,crystal:0,sulfur:0},production:{wood:0,trade:0,tradeName:''},wineConsumption:0,ts:0};
       var activeStyle = (id == (current && current.id) || 0)? ' class="okcity'+id+' okActive"' : ' class="okcity'+id+'"';
       table_resources += '<tbody'+activeStyle+' style="display:'+options.ok_resources+'"><tr style="text-align:center;">'
       + '<td id="okgo'+ (++tdid) +'"><a>' + allCities[id].name + '</a>'
       + '<a href="/index.php?view=transport&destinationCityId='+id+'"><img src="/skin/resources/icon_actionpoints.gif" width="12" height="12" alt="Txfr"></a>'
       + '</td>';
       tdid_click[tdid] = function(e){ if (e.target.nodeName == 'A') changeCity(id,'form'); };
-      for (resource in ICON){
+      for (var resource in ICON){
         var tradeNote = '', extraMsg = '', production = 0, href = '';
         switch (resource){
           case 'wood' :
@@ -1129,9 +1135,8 @@ function buildPopUp(){
               href = buildTradegoodHref(id);
             }
         }
-        var guess = IKARIAM.getResource(id,resource);
-        if (production)
-        {
+        var guess = IKARIAM.getResource(id, resource);
+        if (production) {
           tradeNote = '<span class="tradeNote"><a href="' + href + '">+' + ((production !== undefined) ? fmtProductionRate(production) : '?') + '</a>' + extraMsg + '</span>'; 
           //if (temp_resources.ts) guess += production * (now - temp_resources.ts) / 1000;
         }
@@ -1139,6 +1144,7 @@ function buildPopUp(){
         table_resources += '<td id="okgo'+ (++tdid) +'">' + fmtNumber(guess) + tradeNote;
         table_resources += '</td>';
       }
+
       // TRANSPORT HELPER CODE
       var transportHelper = { wood:{avg:0,max:0},wine:{avg:0,max:0},marble:{avg:0,max:0},crystal:{avg:0,max:0},sulfur:{avg:0,max:0}};
       if (enableTransport && ($X("//input[@name='destinationCityId']").value == id) && current) {
@@ -1168,6 +1174,7 @@ function buildPopUp(){
         //$X('./li[last()]/div[2]',sliderBox).innerHTML += '<br/> <span style="width:60px; display:inline-block; padding-left:1em;">average</span> <span>max</span>';
         $('button.quickTransport').each(function(){ onClick(this, transportMax, true); });
       }
+
       temp = allCities[id].demographics;
       if (temp) {
               table_resources += '<td class="tanline">&nbsp;</td><td>'+temp.population +' / '+temp.maxSpace+'</td>';
@@ -1175,7 +1182,7 @@ function buildPopUp(){
               sum.missing += (Math.min(temp.satisfaction,temp.maxSpace) - temp.population);
       } else  table_resources += '<td class="tanline">&nbsp;</td><td>?</td>';
       table_resources += '</tr>';
-      
+
       //ROW TWO
       var then = temp_resources.ts, old  = '';
       var bar = {}, percent = {}, colors = {
@@ -1279,13 +1286,13 @@ function buildPopUp(){
     for (var key in popupKeyOptions) popupKeyOptionsHTML += '<option value="'+key+'"' + (popupKey == key ? ' selected' : '') +'>'+popupKeyOptions[key]+'</option>';
     var overviewPopup = node("div",'',{'display':'none'},
       '<div><h2 id="igoheader">' +
-          '<div id="icon_close">[X]</div><a href="'+scriptMetadata.homepage+'">'+scriptName + '</a> <select>'+popupKeyModeOptionsHTML+'</select <select>' + popupKeyOptionsHTML + '</select>' + 
-          '<img src="/skin/layout/notice_close_hover.gif" style="display:none;"/>' + 
-        '</h2>'	+
-         '<div id="overviewPopupTab1">' + 
-            printBuildingLevels()	+ printResources()+printForce('army')+printForce('fleet')+'<div style="clear:both;"></div>' + 
+          '<div id="icon_close">[X]</div><a href="'+scriptMetadata.homepage+'">'+scriptName + '</a> <select>'+popupKeyModeOptionsHTML+'</select> <select>' + popupKeyOptionsHTML + '</select>' +
+          '<img src="/skin/layout/notice_close_hover.gif" style="display:none;"/>' +
+        '</h2>' +
+         '<div id="overviewPopupTab1">' +
+            printBuildingLevels() + printResources()+printForce('army')+printForce('fleet')+'<div style="clear:both;"></div>' +
           '</div>' +
-         //'<div id="overviewPopupTab2">' + 
+         //'<div id="overviewPopupTab2">' +
           //printForce('army')+printForce('fleet')+
           //'</div>' +
         '</div>'
@@ -1302,8 +1309,8 @@ function buildPopUp(){
 
     // CONNECT INTERACTIVE ELEMENTS
     onClick($$('icon_close'),showHide);
-    $X('.//select[1]',overviewPopup).addEventListener("change", function(){GM_setValue('popupKeyMode',this.value);}, false);
-    $X('.//select[2]',overviewPopup).addEventListener("change", function(){GM_setValue('popupKey',this.value);}, false);
+    $('select:eq(0)', overviewPopup).change(function(){ GM_setValue('popupKeyMode', this.value); });
+    $('select:eq(1)', overviewPopup).change(function(){ GM_setValue('popupKey', this.value); });
 
     var elem;
     for each (var thead in $x('.//thead',$$('overviewPopup'))){
@@ -1324,7 +1331,7 @@ function buildPopUp(){
     //Select all anchor tag with rel set to tooltip
     $('*[rel^="tooltip"]').hoverIntent(function(e) {
         var tip = $(this).attr('rel').split('.');
-        $(this).append('<div id="tooltip">' + generateTip(tip[1],tip[2],tip[3]) + '</div>');		
+        $(this).append('<div id="tooltip">' + generateTip(tip[1],tip[2],tip[3]) + '</div>');    
         //Set the X and Y axis of the tooltip
         var offset = $(this).offset();
         
@@ -1805,7 +1812,7 @@ var QUEUE = {
 
 
 //************************************************* DO STUFF **************************************************//
-var options, cityOrder;			// all info about the current city, set by getCities();
+var options, cityOrder;     // all info about the current city, set by getCities();
 var enableTransport = (document.body.id == "transport");
 
 if ($$('servertime')) {
